@@ -2,7 +2,7 @@ from app.services.prompt_engine.base import BasePromptGenerator
 from app.schemas.prompt import PromptRequest
 from app.services.llm.groq_client import GroqClient
 
-class ChatGPTPromptGenerator(BasePromptGenerator):
+class PromptGenerator(BasePromptGenerator):
 
     def __init__(self):
         self.llm = GroqClient()
@@ -14,7 +14,7 @@ Your job is to generate highly advanced, optimized prompts.
 """
 
         user_prompt = f"""
-Create an ADVANCED prompt for ChatGPT.
+Create an ADVANCED prompt for {data.platform}
 
 GOAL:
 {data.goal}
@@ -35,7 +35,7 @@ RULES:
 - The prompt must be extremely clear and structured
 - Use role assignment
 - Use step-by-step reasoning instructions
-- Optimize for best ChatGPT performance
+- Optimize for best {data.platform} performance
 """
 
         return await self.llm.generate(system_prompt, user_prompt)
