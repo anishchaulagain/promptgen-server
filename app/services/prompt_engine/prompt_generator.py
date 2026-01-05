@@ -61,14 +61,6 @@ GENERATED PROMPT:
     - Output Format Specification
 ]
 
-PROMPT BREAKDOWN:
-[Bullet points explaining WHY you structured it this way]
-- **Persona**: Why this specific role?
-- **Cognitive Strategy**: What reasoning method is used?
-- **Key Constraints**: How you prevent hallucinations or bad output.
-
-OPTIMIZATION FOR {data.platform.upper()}:
-- [Specific advice for this model, e.g., "Claude prefers XML tags", "GPT-4 likes explicit step-by-step"]
 """
 
         user_prompt = f"""
