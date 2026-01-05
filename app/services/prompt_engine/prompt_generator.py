@@ -13,62 +13,81 @@ class PromptGenerator(BasePromptGenerator):
         return "\n".join([f"- {c}" for c in constraints])
 
     async def generate(self, data: PromptRequest) -> str:
-        system_prompt = """
-You are an expert AI prompt engineer specializing in crafting high-performance prompts for various AI platforms.
+        # Specialized instructions based on prompt type
+        type_specific_instructions = ""
+        if data.prompt_type == "Code Generation":
+            type_specific_instructions = """
+            - For code generation, strictly enforce modularity, error handling, and comments.
+            - Request valid, compilable/runnable code snippets.
+            - Include security considerations (e.g., input validation).
+            """
+        elif data.prompt_type == "Creative Writing":
+            type_specific_instructions = """
+            - Encourage "Show, Don't Tell" principles.
+            - Focus on sensory details, emotional resonance, and varied sentence structure.
+            - Allow for higher temperature/creativity constraints in the prompt instructions.
+            """
+        elif data.prompt_type == "Data Analysis":
+            type_specific_instructions = """
+            - Demand data-backed reasoning.
+            - Use structured frameworks (e.g., SWOT, First Principles, root cause analysis).
+            - Request unbiased, objective evaluation of options.
+            """
 
-Your expertise includes:
-- Deep understanding of prompt engineering principles (role assignment, chain-of-thought, few-shot learning, structured outputs)
-- Platform-specific optimization (ChatGPT, Claude, Gemini, Midjourney, Stable Diffusion, etc.)
-- Balancing clarity, specificity, and token efficiency
-- Incorporating constraints and guardrails effectively
+        system_prompt = f"""
+You are an Elite Senior Prompt Architect with deep expertise in LLM cognitive architectures. Your task is to engineer a "Production-Grade" prompt that extracts the absolute maximum performance from {data.platform} for a specific user goal.
 
-OUTPUT STRUCTURE:
-You must provide your response in the following structured format:
+### CORE PHILOSOPHY
+- **Precision over Ambiguity**: Vague prompts yield vague results. You construct prompts with laser-focused clarity.
+- **Structural Integrity**: You use delimiters (###, ---, brackets) to separate context, instructions, and data.
+- **Cognitive Scaffolding**: You embed Chain-of-Thought (CoT) and "Take a deep breath" style reasoning instructions to improve logic.
+- **Persona Engineering**: You define rich, expert personas suited exactly to the task.
+
+### EXPERT TECHNIQUES TO EMPLOY
+1. **Persona Pattern**: Define a specific role (e.g., "World-class Python Systems Engineer" instead of "Coder").
+2. **Chain-of-Thought**: Instruct the model to "Think step-by-step" before answering.
+3. **Output Constraining**: Clearly define the output format (JSON, Markdown, CSV, etc.) with examples if needed.
+4. **Few-Shot Prompting**: If the user provides examples, format them rigorously. If not, structure the prompt to accept them easily.
+
+### OUTPUT FORMAT
+You must output a response in this EXACT structure:
 
 GENERATED PROMPT:
-[The complete, ready-to-use prompt that the user can copy and paste]
+[The complete, high-fidelity prompt. This should be ready to copy-paste. It must include:
+    - Role/System Context
+    - Main Task Description
+    - Step-by-Step Instructions
+    - Constraints & Guardrails
+    - Output Format Specification
+]
 
 PROMPT BREAKDOWN:
-Role Assignment: [Explain the role/persona assigned]
-Core Instructions: [Key directives and objectives]
-Reasoning Approach: [How thinking/reasoning is structured]
-Output Format: [Expected response structure]
+[Bullet points explaining WHY you structured it this way]
+- **Persona**: Why this specific role?
+- **Cognitive Strategy**: What reasoning method is used?
+- **Key Constraints**: How you prevent hallucinations or bad output.
 
-OPTIMIZATION NOTES:
-Platform-Specific: [Why this works well for the target platform]
-Key Techniques Used: [List 2-3 prompt engineering techniques applied]
-Potential Improvements: [Optional suggestions for iteration]
-
-USAGE TIPS:
-[1-2 practical tips for getting the best results with this prompt]
+OPTIMIZATION FOR {data.platform.upper()}:
+- [Specific advice for this model, e.g., "Claude prefers XML tags", "GPT-4 likes explicit step-by-step"]
 """
 
         user_prompt = f"""
-Generate an optimized prompt with the following specifications:
+### SPECIFICATIONS FOR THE NEW PROMPT
 
-TARGET PLATFORM: {data.platform}
+**Target Platform**: {data.platform}
+**User Goal**: {data.goal}
+**Desired Tone**: {data.tone}
+**Complexity**: {data.complexity}
+**Prompt Type**: {data.prompt_type}
 
-OBJECTIVE:
-{data.goal}
-
-DESIRED TONE: {data.tone}
-
-COMPLEXITY LEVEL: {data.complexity}
-(This should guide how technical/detailed the prompt instructions are)
-
-PROMPT TYPE: {data.prompt_type}
-(e.g., conversational, task-based, creative generation, analytical, code generation)
-
-CONSTRAINTS:
+### CONSTRAINTS PROVIDED
 {self._format_constraints(data.constraints)}
 
-SPECIAL REQUIREMENTS:
-- The prompt should be immediately usable without modification
-- Include explicit instructions for step-by-step reasoning when appropriate
-- Optimize for {data.platform}'s specific capabilities and token limits
-- Balance thoroughness with conciseness
-- If relevant, include output formatting instructions (JSON, markdown, etc.)
+### ADDITIONAL REQUIREMENTS
+{type_specific_instructions}
 
-Generate the structured prompt now.
+### TASK
+Draft the ultimate prompt for this request. It should be sophisticated, robust, and designed to minimize errors.
+Ensure the "GENERATED PROMPT" section is self-contained and uses delimiters for clarity.
 """
         return await self.llm.generate(system_prompt, user_prompt)
